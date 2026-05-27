@@ -2,19 +2,21 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <title>Community Discovery Hub</title>
+    <title>Chatsong Community Indie Playlist</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .item { border: 1px solid #ccc; padding: 15px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        iframe { width: 100%; height: 160px; border: none; border-radius: 4px; margin-bottom: 10px; }
-        .btn-listen { display: block; width: 100%; padding: 10px; background: #1DB954; color: white; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .item { border: 1px solid #ccc; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-listen { display: block; width: 100%; padding: 12px; margin-top: 15px; background: #1DB954; color: white; text-align: center; text-decoration: none; border-radius: 6px; font-weight: bold; }
         .btn-listen:hover { background: #1aa34a; }
+        h3 { margin-top: 0; }
+        p { margin: 5px 0; color: #555; }
     </style>
 </head>
 <body>
-    <h1>Community Music Discovery Hub</h1>
-    <p>Discover new tracks. Click "Open Playlist" to listen to the full list in your app.</p>
+    <h1>Chatsong Community Indie Playlist</h1>
+    <p>Discover new music on our playlist featured by our indie talent. Click on "Open Playlist" to listen.</p>
+    
     <div class="gallery" id="playlist-container"></div>
 
     <script>
@@ -28,15 +30,11 @@
                 const div = document.createElement('div');
                 div.className = 'item';
                 
-                // Embed URL voor preview
-                let embedUrl = item.playlistUrl;
-                if (embedUrl.includes("youtube.com/watch?v=")) embedUrl = embedUrl.replace("watch?v=", "embed/");
-                
                 div.innerHTML = `
-                    <h3>${item.playlistName || 'Playlist'}</h3>
-                    <iframe src="${embedUrl}" allow="encrypted-media"></iframe>
-                    <a href="${item.playlistUrl}" target="_blank" class="btn-listen">🎧 Open Full Playlist</a>
-                    <p style="margin-top:10px; font-size:0.8em;"><strong>Service:</strong> ${item.streamingService || 'Muziek'}<br><strong>Door:</strong> ${item.createdBy || 'Community'}</p>
+                    <h3>${item.playlistName || 'Geen titel'}</h3>
+                    <p><strong>Service:</strong> ${item.streamingService || 'Muziek'}</p>
+                    <p><strong>Door:</strong> ${item.createdBy || 'Community'}</p>
+                    <a href="${item.playlistUrl}" target="_blank" class="btn-listen">🎧 Open Playlist</a>
                 `;
                 container.appendChild(div);
             });

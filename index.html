@@ -7,8 +7,10 @@
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         .item { border: 1px solid #ccc; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        iframe { width: 100%; height: 160px; border: none; border-radius: 8px; margin-top: 10px; }
+        /* Hoogte op 450px zodat de hele tracklist zichtbaar is */
+        iframe { width: 100%; height: 450px; border: none; border-radius: 8px; margin-top: 10px; }
         .btn-listen { display: block; width: 100%; padding: 12px; margin-top: 15px; background: #1DB954; color: white; text-align: center; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        .btn-listen:hover { background: #1aa34a; }
         h3 { margin-top: 0; }
         p { margin: 5px 0; color: #555; }
     </style>
@@ -20,13 +22,23 @@
     <script>
         const url = 'https://api.sheety.co/11210433ea3a8197221e9f0e125840d4/chatsongCommunityPlaylist/formResponses1';
 
-        // Deze functie zorgt voor de juiste speler-link
         function getEmbedUrl(link) {
             if (!link) return "";
-            if (link.includes("soundcloud.com")) return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link);
-            if (link.includes("open.spotify.com/playlist/")) return link.replace("open.spotify.com/playlist/", "open.spotify.com/embed/playlist/");
+            
+            // SoundCloud: Forceer de playlist weergave door visual=false in te stellen
+            if (link.includes("soundcloud.com")) {
+                return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&show_artwork=true&visual=false";
+            }
+            
+            // Spotify: playlist embed
+            if (link.includes("open.spotify.com/playlist/")) {
+                return link.replace("open.spotify.com/playlist/", "open.spotify.com/embed/playlist/");
+            }
+            
+            // YouTube: playlist embed
             if (link.includes("youtube.com/watch?v=")) return link.replace("watch?v=", "embed/");
-            return link; // fallback
+            
+            return link;
         }
 
         fetch(url)

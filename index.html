@@ -17,15 +17,33 @@
     <div class="gallery" id="playlist-container"></div>
 
     <script>
+        // Gebruik hier de URL van je laatst gepubliceerde web-app
         const url = 'https://script.google.com/macros/s/AKfycbxbiBZ55gBz3Y-XTLDdE_cvQX3wb4w5cKtgUINqXrBek-LthtXb2DYz1G6v29SviXlV/exec';
 
         function getEmbedUrl(link) {
             if (!link) return "";
-            if (link.includes("soundcloud.com")) return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&visual=false";
+
+            // SoundCloud
+            if (link.includes("soundcloud.com")) {
+                return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&visual=false";
+            }
+
+            // YouTube (Werkt voor zowel playlists als losse video's)
             if (link.includes("youtube.com") || link.includes("youtu.be")) {
+                if (link.includes("list=")) {
+                    const urlParams = new URLSearchParams(new URL(link).search);
+                    return "https://www.youtube.com/embed/videoseries?list=" + urlParams.get('list');
+                }
                 let videoId = link.includes("v=") ? link.split("v=")[1].split("&")[0] : link.split("youtu.be/")[1].split("?")[0];
                 return "https://www.youtube.com/embed/" + videoId;
             }
+
+            // Spotify
+            if (link.includes("spotify.com")) {
+                // Zet de normale link om naar een embed link
+                return link.replace("open.spotify.com/", "open.spotify.com/embed/");
+            }
+
             return link;
         }
 
@@ -40,23 +58,26 @@
                     const div = document.createElement('div');
                     div.className = 'item';
                     
-                    // Gebruik hier de exacte namen uit je data met spaties tussen haakjes
+                    // Gebruik de namen exact zoals ze in je JSON-data staan
                     const pName = item["playlist name"] || 'Geen titel';
                     const pUrl = item["playlist url"] || '';
                     const pService = item["streaming service"] || 'Muziek';
                     const pBy = item["created by"] || 'Community';
                     
+                    const embedUrl = getEmbedUrl(pUrl);
+                    
                     div.innerHTML = `
                         <h3>${pName}</h3>
                         <p><strong>Service:</strong> ${pService}</p>
                         <p><strong>Door:</strong> ${pBy}</p>
-                        <iframe src="${getEmbedUrl(pUrl)}" allowfullscreen></iframe>
+                        <iframe src="${embedUrl}" allow="encrypted-media" allowfullscreen></iframe>
                         <a href="${pUrl}" target="_blank" class="btn-listen">🎧 Open in App</a>
                     `;
                     container.appendChild(div);
                 });
             }
-        });
+        })
+        .catch(err => console.error("Fout bij laden data:", err));
     </script>
 </body>
 </html>

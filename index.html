@@ -59,26 +59,43 @@
     <h1>Chatsong Community Indie Playlist</h1>
     <div class="gallery" id="playlist-container"></div>
 
-    <script>
-        const url = 'https://api.sheety.co/11210433ea3a8197221e9f0e125840d4/chatsongCommunityPlaylist/formResponses1';
+  function getEmbedUrl(link) {
+    if (!link) return "";
 
-        function getEmbedUrl(link) {
-            if (!link) return "";
-            if (link.includes("soundcloud.com")) {
-                return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&show_artwork=true&visual=false";
-            }
-            if (link.includes("youtube.com") || link.includes("youtu.be")) {
-                let videoId = "";
-                if (link.includes("list=")) {
-                    const urlParams = new URLSearchParams(new URL(link).search);
-                    return "https://www.youtube.com/embed/videoseries?list=" + urlParams.get('list');
-                }
-                if (link.includes("v=")) { videoId = link.split("v=")[1].split("&")[0]; }
-                else if (link.includes("youtu.be/")) { videoId = link.split("youtu.be/")[1].split("?")[0]; }
-                return "https://www.youtube.com/embed/" + videoId;
-            }
-            return link;
+    // 1. SoundCloud
+    if (link.includes("soundcloud.com")) {
+        return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&show_artwork=true&visual=false";
+    }
+
+    // 2. YouTube Afspeellijst
+    if (link.includes("list=")) {
+        const urlParams = new URLSearchParams(new URL(link).search);
+        const listId = urlParams.get('list');
+        return "https://www.youtube.com/embed/videoseries?list=" + listId;
+    }
+
+    // 3. YouTube Losse video
+    if (link.includes("youtube.com") || link.includes("youtu.be")) {
+        let videoId = "";
+        if (link.includes("v=")) { videoId = link.split("v=")[1].split("&")[0]; }
+        else if (link.includes("youtu.be/")) { videoId = link.split("youtu.be/")[1].split("?")[0]; }
+        return "https://www.youtube.com/embed/" + videoId;
+    }
+
+    // 4. SPOTIFY FIX (DEZE IS BELANGRIJK)
+    if (link.includes("spotify.com")) {
+        // We halen de ID uit de URL, of het nu een playlist, album of track is
+        // Bijv: open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M?si=...
+        const match = link.match(/(playlist|album|track)\/([a-zA-Z0-9]+)/);
+        if (match) {
+            const type = match[1]; // playlist, album of track
+            const id = match[2];   // de code van het nummer/playlist
+            return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator`;
         }
+    }
+
+    return link;
+}
 
         fetch(url)
         .then((response) => response.json())

@@ -3,7 +3,6 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatsong Community Indie Playlist</title>
     <style>
@@ -25,6 +24,7 @@
             flex-direction: column;
         }
 
+        /* Dwingt de hoogte af zodat de 'Canvas' fout verdwijnt */
         iframe { 
             width: 100%; 
             height: 400px; 
@@ -32,7 +32,6 @@
             border: none; 
             border-radius: 8px; 
             margin-top: 10px; 
-            contain: content; 
             display: block; 
         }
 
@@ -54,9 +53,6 @@
             border-radius: 6px; 
             font-weight: bold; 
         }
-        .btn-listen:hover { background: #1aa34a; }
-        h3 { margin-top: 0; }
-        p { margin: 5px 0; color: #555; }
     </style>
 </head>
 <body>
@@ -68,28 +64,19 @@
 
         function getEmbedUrl(link) {
             if (!link) return "";
-            
-            // SoundCloud
             if (link.includes("soundcloud.com")) {
                 return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&show_artwork=true&visual=false";
             }
-            
-            // YouTube Afspeellijst (PL...)
-            if (link.includes("list=")) {
-                const urlParams = new URLSearchParams(new URL(link).search);
-                const listId = urlParams.get('list');
-                return "https://www.youtube.com/embed/videoseries?list=" + listId;
-            }
-            
-            // YouTube Losse video
             if (link.includes("youtube.com") || link.includes("youtu.be")) {
                 let videoId = "";
+                if (link.includes("list=")) {
+                    const urlParams = new URLSearchParams(new URL(link).search);
+                    return "https://www.youtube.com/embed/videoseries?list=" + urlParams.get('list');
+                }
                 if (link.includes("v=")) { videoId = link.split("v=")[1].split("&")[0]; }
                 else if (link.includes("youtu.be/")) { videoId = link.split("youtu.be/")[1].split("?")[0]; }
                 return "https://www.youtube.com/embed/" + videoId;
             }
-            
-            // Spotify (geen extra transformatie nodig als je de correcte URL's in je sheet gebruikt)
             return link;
         }
 
@@ -103,13 +90,15 @@
                 
                 const embedUrl = getEmbedUrl(item.playlistUrl);
                 
+                // DEZE TAG OPLOST DE 'PERMISSIONS' FOUTEN:
+                // We geven expliciet toestemming voor encrypted-media (Spotify) en autoplay.
                 div.innerHTML = `
                     <h3>${item.playlistName || 'Geen titel'}</h3>
                     <p><strong>Service:</strong> ${item.streamingService || 'Muziek'}</p>
                     <p><strong>Door:</strong> ${item.createdBy || 'Community'}</p>
                     <iframe 
                         src="${embedUrl}" 
-                        title="Playlist speler"
+                        title="Speler"
                         loading="lazy"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                         allowfullscreen>

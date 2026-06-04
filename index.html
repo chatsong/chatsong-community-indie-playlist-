@@ -58,7 +58,6 @@
 <body>
     <h1>Chatsong Community Indie Playlist</h1>
     <div class="gallery" id="playlist-container"></div>
-
 function getEmbedUrl(link) {
     if (!link) return "";
 
@@ -93,6 +92,7 @@ function getEmbedUrl(link) {
 
     return link;
 }
+
         fetch(url)
         .then((response) => response.json())
         .then(json => {

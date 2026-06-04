@@ -1,14 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatsong Community Indie Playlist</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .item { border: 1px solid #ccc; padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        iframe { width: 100%; height: 450px; border: none; border-radius: 8px; margin-top: 10px; }
-        .btn-listen { display: block; width: 100%; padding: 12px; margin-top: 15px; background: #1DB954; color: white; text-align: center; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; margin: 0; }
+        
+        /* Responsive Grid: Werkt op desktop en mobiel */
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); 
+            gap: 20px; 
+        }
+        
+        .item { 
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            border-radius: 12px; 
+            background: #fff; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* OPLOSSING VOOR CANVAS FOUTEN & LAYOUT */
+        iframe { 
+            width: 100%; 
+            height: 400px; 
+            min-height: 400px; /* Dwingt hoogte af voor canvas */
+            border: none; 
+            border-radius: 8px; 
+            margin-top: 10px; 
+            contain: content;  /* Isoleert de speler voor stabiliteit */
+            display: block; 
+        }
+
+        /* OPLOSSING VOOR PORTRETSTAND (mobiel) */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .gallery { grid-template-columns: 1fr; } /* Forceert 1 kolom */
+            iframe { height: 320px; min-height: 320px; }
+        }
+
+        .btn-listen { 
+            display: block; 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 15px; 
+            background: #1DB954; 
+            color: white; 
+            text-align: center; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+        }
         .btn-listen:hover { background: #1aa34a; }
         h3 { margin-top: 0; }
         p { margin: 5px 0; color: #555; }
@@ -23,28 +70,15 @@
 
         function getEmbedUrl(link) {
             if (!link) return "";
-            
-            // SoundCloud
             if (link.includes("soundcloud.com")) {
                 return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&show_artwork=true&visual=false";
             }
-            
-            // Spotify
-            if (link.includes("open.spotify.com/playlist/")) {
-                return link.replace("open.spotify.com/playlist/", "open.spotify.com/embed/playlist/");
-            }
-            
-            // YouTube: Vangt watch?v= en youtu.be af
             if (link.includes("youtube.com") || link.includes("youtu.be")) {
                 let videoId = "";
-                if (link.includes("v=")) {
-                    videoId = link.split("v=")[1].split("&")[0];
-                } else if (link.includes("youtu.be/")) {
-                    videoId = link.split("youtu.be/")[1].split("?")[0];
-                }
+                if (link.includes("v=")) { videoId = link.split("v=")[1].split("&")[0]; }
+                else if (link.includes("youtu.be/")) { videoId = link.split("youtu.be/")[1].split("?")[0]; }
                 return "https://www.youtube.com/embed/" + videoId;
             }
-            
             return link;
         }
 
@@ -58,11 +92,18 @@
                 
                 const embedUrl = getEmbedUrl(item.playlistUrl);
                 
+                // Verbeterde Iframe tag met permissies, lazy loading en titel
                 div.innerHTML = `
                     <h3>${item.playlistName || 'Geen titel'}</h3>
                     <p><strong>Service:</strong> ${item.streamingService || 'Muziek'}</p>
                     <p><strong>Door:</strong> ${item.createdBy || 'Community'}</p>
-                    <iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe 
+                        src="${embedUrl}" 
+                        title="Playlist speler"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
                     <a href="${item.playlistUrl}" target="_blank" class="btn-listen">🎧 Open in App</a>
                 `;
                 container.appendChild(div);

@@ -59,7 +59,7 @@
     <h1>Chatsong Community Indie Playlist</h1>
     <div class="gallery" id="playlist-container"></div>
 
-  function getEmbedUrl(link) {
+function getEmbedUrl(link) {
     if (!link) return "";
 
     // 1. SoundCloud
@@ -67,36 +67,32 @@
         return "https://w.soundcloud.com/player/?url=" + encodeURIComponent(link) + "&show_artwork=true&visual=false";
     }
 
-    // 2. YouTube Afspeellijst
-    if (link.includes("list=")) {
-        const urlParams = new URLSearchParams(new URL(link).search);
-        const listId = urlParams.get('list');
-        return "https://www.youtube.com/embed/videoseries?list=" + listId;
-    }
-
-    // 3. YouTube Losse video
+    // 2. YouTube (Afspeellijst of video)
     if (link.includes("youtube.com") || link.includes("youtu.be")) {
+        if (link.includes("list=")) {
+            const urlParams = new URLSearchParams(new URL(link).search);
+            return "https://www.youtube.com/embed/videoseries?list=" + urlParams.get('list');
+        }
         let videoId = "";
         if (link.includes("v=")) { videoId = link.split("v=")[1].split("&")[0]; }
         else if (link.includes("youtu.be/")) { videoId = link.split("youtu.be/")[1].split("?")[0]; }
         return "https://www.youtube.com/embed/" + videoId;
     }
 
-    // 4. SPOTIFY FIX (DEZE IS BELANGRIJK)
+    // 3. SPOTIFY FIX (Dit is de belangrijkste!)
     if (link.includes("spotify.com")) {
-        // We halen de ID uit de URL, of het nu een playlist, album of track is
-        // Bijv: open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M?si=...
+        // Haal de ID uit de URL: bijv. open.spotify.com/playlist/DE-ID-HIER
+        // We zoeken naar /playlist/, /album/ of /track/ gevolgd door de ID
         const match = link.match(/(playlist|album|track)\/([a-zA-Z0-9]+)/);
         if (match) {
             const type = match[1]; // playlist, album of track
-            const id = match[2];   // de code van het nummer/playlist
+            const id = match[2];   // de unieke code
             return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator`;
         }
     }
 
     return link;
 }
-
         fetch(url)
         .then((response) => response.json())
         .then(json => {
